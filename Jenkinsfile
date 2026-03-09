@@ -4,7 +4,7 @@ pipeline {
     environment {
         // ID must match exactly with Jenkins Credentials ID
         CRED_ID = 'docker-hub-creds'
-        DOCKER_USER = 'hrishi409'
+        DOCKER_USER = 'hrishipatil193'
         REPO_NAME = 'django-ecommerce'
         IMAGE_TAG = 'v3'
     }
@@ -63,3 +63,4 @@ pipeline {
         }
     }
 }
+
