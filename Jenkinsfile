@@ -2,57 +2,64 @@ pipeline {
     agent any
 
     environment {
-        // Jenkins mein jo ID 'docker-hub-creds' banayi hai, ye wahi hai
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub-creds') 
-        DOCKER_IMAGE = "${DOCKERHUB_CREDENTIALS_USR}/django-ecommerce" 
-        IMAGE_TAG = "v3" 
+        // ID must match exactly with Jenkins Credentials ID
+        CRED_ID = 'docker-hub-creds'
+        DOCKER_USER = 'hrishi409'
+        REPO_NAME = 'django-ecommerce'
+        IMAGE_TAG = 'v3'
     }
 
     stages {
         stage('Cleanup') {
             steps {
-                cleanWs() // Purana kachra saaf karne ke liye
+                cleanWs() 
+                echo "Purana kachra saaf kar diya."
             }
         }
 
         stage('Checkout SCM') {
             steps {
-                checkout scm // GitHub se code uthayega
+                checkout scm
             }
         }
 
         stage('Trivy Security Scan') {
             steps {
                 echo "Skipping Trivy scan for now to fix deployment..."
-                // exit-code 0 matlab 63 vulns hone par bhi build fail nahi hoga
-                //sh "trivy fs . --severity HIGH,CRITICAL --exit-code 0" 
+                // sh "trivy fs . --severity HIGH,CRITICAL --exit-code 0" 
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo "Building Docker Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
+                echo "Building Docker Image: ${DOCKER_USER}/${REPO_NAME}:${IMAGE_TAG}"
+                // Permission fix ke liye humne local terminal pe 'chmod 666 /var/run/docker.sock' pehle hi kar diya hai
+                sh "docker build -t ${DOCKER_USER}/${REPO_NAME}:${IMAGE_TAG} ."
             }
         }
 
         stage('Docker Push') {
             steps {
-                echo "Pushing to Docker Hub..."
-                // PAT (Token) se login karega
-                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                script {
+                    // Ye block credentials ko securely handle karega
+                    withCredentials([usernamePassword(credentialsId: "${CRED_ID}", passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                        echo "Logging into Docker Hub..."
+                        sh "echo ${PASS} | docker login -u ${USER} --password-stdin"
+                        
+                        echo "Pushing Image..."
+                        sh "docker push ${DOCKER_USER}/${REPO_NAME}:${IMAGE_TAG}"
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo "Bhai, Build Success! Image Docker Hub pe hai. 🚀"
+            echo "Bhai, Build Success! v3 Image Docker Hub pe hai. 🚀"
         }
         failure {
-            echo "Build fail ho gaya, console logs check karo. ❌"
+            echo "Abhi bhi fail hai? Console log mein 'unauthorized' ke aage ka error dekho. ❌"
         }
     }
-
 }
