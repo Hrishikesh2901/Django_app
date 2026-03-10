@@ -6,7 +6,7 @@ pipeline {
         CRED_ID = 'docker-hub-creds'
         DOCKER_USER = 'hrishipatil193'
         REPO_NAME = 'django-ecommerce'
-        IMAGE_TAG = 'v3'
+        IMAGE_TAG = 'v4'
     }
 
     stages {
