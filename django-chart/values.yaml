@@ -9,7 +9,7 @@ replicaCount: 1
 image:
   repository:  hrishipatil193/django-ecommerce
   # This sets the pull policy for images.
-  pullPolicy: Never
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v4"
 
