@@ -12,3 +12,19 @@ media
 /.env
 /.vscode
 /.idea
+
+# Terraform internal files (BINA ISKE PUSH NAHI HOGA)
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Python/Django junk
+__pycache__/
+*.py[cod]
+db.sqlite3
+media/
+static/
+
+# Environment variables
+.env
